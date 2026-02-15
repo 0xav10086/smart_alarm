@@ -19,7 +19,6 @@ zip -r "$ZIP_NAME" . \
     -x ".gitignore" \
     -x "build.sh" \
     -x "dev_*" \
-    -x "test_module*" \
     -x "TODO.md" \
     -x "boot_count" \
     -x "Log/*" \

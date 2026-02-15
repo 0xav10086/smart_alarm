@@ -184,6 +184,16 @@
     </div>
 </div>
 
+<div class="card" style="border-left: 4px solid #ff9800;">
+    <h2>调试与测试</h2>
+    <div class="form-group">
+        <label>集成功能测试</label>
+        <span class="sub-label">模拟入睡9小时+浅睡状态，30秒后触发闹钟。请确保音量已开启。</span>
+        <button class="btn-small" style="width:100%; margin-top:8px; background-color:#ff9800;" onclick="runIntegrationTest()">运行 30s 集成测试</button>
+    </div>
+    <div id="test_output" style="background:#333; color:#0f0; padding:10px; border-radius:4px; font-family:monospace; font-size:0.8rem; margin-top:10px; display:none; white-space:pre-wrap;"></div>
+</div>
+
 <button class="btn" onclick="saveConfig()">保存并应用配置</button>
 
 <div id="toast">配置已保存</div>
@@ -329,6 +339,25 @@
         const path = document.getElementById('ringtone_path').value;
         if (!path) { alert("请先输入或选择铃声路径"); return; }
         await exec(`am start -a android.intent.action.VIEW -d "file://${path}" -t "audio/*"`);
+    }
+
+    async function runIntegrationTest() {
+        const outputDiv = document.getElementById('test_output');
+        outputDiv.style.display = 'block';
+        outputDiv.innerText = "正在启动测试脚本...\n请等待 30 秒...";
+        
+        // 使用 nohup 运行防止超时，但为了获取输出，我们尝试直接运行
+        // 注意：如果 exec 有超时限制，可能需要分段读取日志，这里假设 ksu.exec 能等待 30s+
+        try {
+            const cmd = `/data/adb/modules/${MODULE_ID}/basic_functionality_test.sh`;
+            // 赋予执行权限以防万一
+            await exec(`chmod +x "${cmd}"`);
+            
+            const result = await exec(cmd);
+            outputDiv.innerText = result || "测试完成，无输出 (请检查 Log)";
+        } catch (e) {
+            outputDiv.innerText = "测试执行出错:\n" + e.message;
+        }
     }
 
     document.querySelectorAll('input[name="polling_mode"]').forEach(el => {
