@@ -28,3 +28,10 @@ build/
 **/wrapper/dists/
 
 caches/
+
+# 在 .gitignore 末尾添加
+daemon/
+native/
+jdks/
+kotlin-profile/
+.kotlin/
