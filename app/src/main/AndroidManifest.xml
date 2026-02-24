@@ -3,7 +3,8 @@
 
     <application
         android:allowBackup="true"
-        android:label="Smart Alarm Helper"        android:supportsRtl="true">
+        android:label="Smart Alarm Helper"
+        android:supportsRtl="true">
 
         <!-- 告诉 LSPosed 这是一个模块 -->
         <meta-data
@@ -15,9 +16,6 @@
         <meta-data
             android:name="xposedminversion"
             android:value="100" />
-        <meta-data
-            android:name="xposedscope"
-            android:resource="@array/xposed_scope" />
 
         <!-- 提供一个简单的界面，方便点击 Run 运行 -->
         <activity

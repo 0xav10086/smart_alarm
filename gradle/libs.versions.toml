@@ -1,0 +1,31 @@
+[versions]
+# 插件版本
+agp = "9.0.1"
+kotlin = "2.1.10"
+ksp = "2.1.10-1.0.30"
+
+# 库版本
+libxposed = "context-SNAPSHOT"
+libsu = "6.0.0"
+androidx-core = "1.12.0"
+appcompat = "1.6.1"
+material = "1.9.0"
+constraintlayout = "2.1.4"
+
+[libraries]
+# LibXposed
+libxposed-api = { group = "io.github.libxposed", name = "api", version.ref = "libxposed" }
+
+# Libsu
+libsu-core = { group = "com.github.topjohnwu.libsu", name = "core", version.ref = "libsu" }
+libsu-nio = { group = "com.github.topjohnwu.libsu", name = "nio", version.ref = "libsu" }
+
+# AndroidX & UI
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

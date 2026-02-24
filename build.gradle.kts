@@ -1,6 +1,7 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+// build.gradle.kts (项目根目录)
+// 删除所有插件定义，让版本管理完全交给 libs.versions.toml
+// 这个文件可能现在是空的，或者只剩下其他非插件的配置
 plugins {
-    id("com.android.application") version "8.2.1" apply false
-    id("org.jetbrains.kotlin.android") version "1.9.22" apply false
-    id("com.google.devtools.ksp") version "1.9.22-1.0.17" apply false
+    // 此处应为空
 }
+    
