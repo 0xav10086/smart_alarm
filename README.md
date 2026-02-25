@@ -1,91 +1,66 @@
-# Smart Sleep Alarm (Gadgetbridge Edition)
+# Smart Sleep Alarm (Modern Edition)
 
-![KernelSU](https://img.shields.io/badge/KernelSU-Module-blue.svg) ![Root](https://img.shields.io/badge/Root-Required-red.svg)
+![LibXposed](https://img.shields.io/badge/LibXposed-Module-blueviolet.svg) ![Root](https://img.shields.io/badge/Root-Required-red.svg) ![Kotlin](https://img.shields.io/badge/Language-Kotlin-blue.svg)
 
 ## 📖 简介 (Introduction)
 
-这是一个基于 **Gadgetbridge** 数据库分析的智能唤醒闹钟 KernelSU/Magisk 模块。
+这是一个利用 **Xposed 注入** 与 **Root 权限** 技术，深度整合 **Gadgetbridge** 数据的智能唤醒闹钟。
+
+与传统定时闹钟不同，**Smart Sleep Alarm** 会根据你的实际入睡时间动态调整闹钟，并利用手环检测到的生理数据（如浅睡状态）在最合适的时机将你唤醒。
 
 > Magisk 模块相关由 [Bemly](https://github.com/Bemly/smart_alarm) 提供，本人没有能力去测试 Magisk 相关的代码:(
+``
+## ✨ 核心特性 (Features)
 
-传统的闹钟是定时的（例如固定早上 7:00 响），但它并不关心你昨晚是 23:00 睡的还是凌晨 2:00 才睡。
-**Smart Sleep Alarm** 的核心理念是：**基于实际入睡时间保障睡眠时长，并在浅睡阶段柔和唤醒。**
+*   **💉 Xposed 深度注入**：基于 `LibXposed` 框架，直接注入 Gadgetbridge 进程 (`nodomain.freeyourgadget.gadgetbridge`)，实现更高效的数据监听与逻辑触发。
+*   **🔓 Root 数据库访问**：集成 `libsu` 库，通过 Root 权限直接读取 Gadgetbridge 的本地 SQLite 数据库，获取精确到分钟的运动强度 (`RAW_INTENSITY`) 与睡眠样本。
+*   **😴 弹性睡眠保障**：根据实际入睡时间计算睡眠时长，确保在保障基础睡眠的前提下进行唤醒。
+*   **🌅 智能柔和唤醒**：分析 `MI_BAND_ACTIVITY_SAMPLE` 等数据表，在设定的唤醒窗口内检测到浅睡/活动时立即响铃，告别起床气。
+*   **📱 原生控制界面**：采用 Material Design 构建的 App 界面，支持实时测试 Root 权限及数据库连接状态。
 
-它通过读取 Gadgetbridge 在本地生成的 SQLite 数据库，分析你的手环/手表上传的睡眠和活动数据，从而实现智能控制。
+## 🛠️ 技术栈 (Tech Stack)
 
-## ✨ 主要功能 (Features)
-
-*   **😴 弹性睡眠时长保障**：
-    *   如果你设置了“预期睡眠 8 小时”，而你凌晨 1 点才入睡，闹钟会自动延后，确保你睡够 8 小时（除非超过了绝对的最晚起床时间）。
-*   **🌅 智能柔和唤醒 (Gentle Wake)**：
-    *   在预期起床时间前的特定窗口内（如 20 分钟），检测到你处于 **浅睡 (Light Sleep)** 阶段时提前唤醒，避免在深睡期被惊醒带来的“起床气”。
-*   **🌙 入睡提醒**：
-    *   到了预期入睡时间如果你还在活动，会发送通知提醒你该睡觉了。
-*   **🖥️ WebUI 配置界面**：
-    *   无需手动修改配置文件，直接在 KernelSU 管理器中打开模块设置页面即可调整参数。
-    *   支持在线测试铃声文件，自动扫描系统铃声。
-*   **🔋 省电设计**：
-    *   智能轮询机制：仅在临近入睡和起床的时间窗口内高频检测，白天自动进入休眠模式。
-*   **🔒 隐私安全**：
-    *   所有数据分析在本地 `/data` 分区完成，不上传任何云端。
+*   **语言**: Kotlin
+*   **Hook 框架**: [LibXposed](https://github.com/libxposed/api) (API 1.0.0+)
+*   **Root 框架**: [libsu](https://github.com/topjohnwu/libsu) (6.0.0+)
+*   **依赖管理**: Gradle Version Catalog (libs.versions.toml)
+*   **数据源**: Gadgetbridge SQLite Database
 
 ## 📋 前置要求 (Prerequisites)
 
-1.  **已 Root 的 Android 设备**：安装了 KernelSU (推荐) 或 Magisk。
-2.  **Gadgetbridge**：已安装并正常使用。
-3.  **可穿戴设备**：已连接 Gadgetbridge 并能同步睡眠/心率数据（如小米手环、华米手表等）。
-
-## 🛠️ 安装与使用 (Installation & Usage)
-
-1.  **安装模块**：
-    *   下载模块 Zip 包，在 KernelSU 中刷入并重启。
-2.  **配置参数**：
-    *   打开 KernelSU APP -> 模块 -> Smart Sleep Alarm。
-    *   点击 **设置 (WebUI)** 图标（或模块卡片）。
-    *   在网页中设置：
-        *   **预期入睡/起床时间**：你的作息目标。
-        *   **预期睡眠时长**：你希望睡够多久。
-        *   **铃声路径**：支持系统铃声选择或自定义路径。
-        *   **柔和唤醒**：开启后会在浅睡期尝试唤醒。
-3.  **保持同步**：
-    *   睡觉前和起床前，请确保手环与 Gadgetbridge 保持连接，以便模块能读取到最新的状态数据。
-
-## ⚙️ 配置项说明 (Configuration)
-
-| 参数 | 说明 |
-| :--- | :--- |
-| **预期入睡/起床时间** | 定义你的活跃窗口。模块主要在这两个时间点前后运行逻辑。 |
-| **预期睡眠时长** | 核心逻辑。如果 `当前时间 - 实际入睡时间 >= 设定时长`，则触发闹钟。 |
-| **柔和唤醒窗口** | 例如设为 20 分钟。在起床时间前 20 分钟内，如果检测到非深睡，立即响铃。 |
-| **心率/强度阈值** | 用于辅助判定用户是否处于活跃状态（防止误判入睡）。 |
-| **轮询模式** | 推荐 **动态轮询**。仅在关键时间窗口（起床/入睡前后 1 小时）高频检查，其余时间休眠。 |
+1.  **环境**: 已安装 LSPosed (或支持 LibXposed 的管理器) 的 Root 设备。
+2.  **软件**: 已安装 **Gadgetbridge** 且已有同步的手环数据。
+3.  **设备**: 支持睡眠监测的 Wearable 设备。
 
 ## 📂 项目结构 (Project Structure)
 
-本项目采用组件化设计，便于维护和扩展：
+*   `app/src/main/java/.../ModuleMain.kt`: Xposed 模块入口，处理进程注入逻辑。
+*   `app/src/main/java/.../MainActivity.kt`: 主界面，负责 UI 交互、权限请求及数据库测试。
+*   `gradle/libs.versions.toml`: 统一版本控制中心。
 
-*   `service.sh`: 主服务入口，负责进程管理和时间窗口调度。
-*   `config.sh`: 负责配置文件的加载、初始化和 WebUI 交互。
-*   `db.sh`: 封装 SQLite 操作，负责从 Gadgetbridge 数据库读取心率、睡眠状态。
-*   `time.sh`: 纯 Shell 实现的时间计算工具库（避免 `date` 命令兼容性问题）。
-*   `alarm.sh`: 负责调用 Android 系统 API 发送通知和播放闹钟。
-*   `GB_data_sync.sh`: 辅助脚本，用于强制唤醒 Gadgetbridge 并触发数据同步。
-*   `webroot/`: 包含 WebUI 的 HTML/JS 资源。
+## 🚀 开发与调试 (Development)
+
+### 编译环境
+- Android Studio Iguana (2023.2.1) 或更高版本。
+- JDK 21。
+- Gradle 8.7+。
+
+### 调试步骤
+1.  编译生成 APK 并安装到设备。
+2.  在 LSPosed 管理器中激活本模块，并勾选 **Gadgetbridge** 作为作用域。
+3.  打开本应用，授予 **Root 权限**。
+4.  点击 “读取数据库” 按钮验证数据链路是否通畅。
+5.  查看 Logcat 过滤 `Smart Alarm` 标签查看注入日志。
+
+## ⚙️ 关键配置 (Configuration)
+
+目前项目正处于从 Shell 迁移至 Kotlin 的阶段。数据库路径硬编码为：
+`/data/data/nodomain.freeyourgadget.gadgetbridge/databases/gadgetbridge`
 
 ## ⚠️ 免责声明
 
-*   本模块依赖 Gadgetbridge 的数据准确性。如果手环未同步或数据不准，闹钟可能无法按预期触发。
-*   **请务必设置一个系统自带的保底闹钟**，以免因模块异常导致迟到。
-*   开发者不对因漏闹导致的任何后果负责。
-
-## 🤝 开发与贡献 (Development)
-
-如果你想参与开发或调试：
-
-1.  克隆仓库。
-2.  连接手机 ADB。
-3.  运行 `./dev_deploy.sh` 将代码推送到手机 `/data/adb/modules/smart_alarm` 并自动重启服务。
-4.  查看日志：`adb shell cat /data/adb/modules/smart_alarm/Log/latest.log`。
+*   本模块通过直接读取其他 App 的私有数据库工作，由于 Gadgetbridge 数据库结构可能随更新改变，请关注项目更新。
+*   **请务必设置一个系统自带的保底闹钟**，以免因进程被杀或 Hook 失效导致迟到。
 
 ---
-Author: 0xav10086
+Author: [0xav10086](https://github.com/0xav10086)

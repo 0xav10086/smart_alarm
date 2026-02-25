@@ -1,0 +1,23 @@
+02-25 18:34:23.682  3513  5046 I ActivityManager: Process io.github.av10086.smartalarm (pid 13123) has died: prcp TPSL
+02-25 18:34:23.682  3513  5046 D OplusAppStartupManager: prevent restart service, pkgName = io.github.av10086.smartalarm, scenePriority = -1
+02-25 18:34:23.682  3513  3782 D SensorServiceExtImpl: notifyApplicationLaunchStage processName=io.github.av10086.smartalarm, uid=10353, pid=13123, stage=-1
+02-25 18:34:23.683  3513  3794 I UserAwareMgr: process killed: {pkgName='io.github.av10086.smartalarm', serviceName='', procName=io.github.av10086.smartalarm, pid=13123, uid=10353, appId=0, owner='null', flags='bg', renderTid=0, hwuiTids=null, glTids=null, threadInfos=null, mVideoActivityList=[], mStates=0}
+02-25 18:34:23.683  3513  3794 I UserAwareMgr: handleProcessKilled, pkgName: io.github.av10086.smartalarm, pid: 13123
+02-25 18:34:23.683  3513  5046 D ActivityTaskManager: removeAppToken: ActivityRecord{2725131 u0 io.github.av10086.smartalarm/.MainActivity t17261 f}} delayed=false parent=Task{43d9ca6 #17261 type=standard A=10353:io.github.av10086.smartalarm} animating=false Callers=com.android.server.wm.DisplayContent.removeAppToken:1759 com.android.server.wm.ActivityRecord.removeFromHistory:4989 com.android.server.wm.ActivityRecord.handleAppDied:5348 com.android.server.wm.WindowProcessController.handleAppDied:1709 
+02-25 18:34:23.684  3513  5046 I OplusScreenSecurityMask: onStackRemoved task = Task{43d9ca6 #17261 type=standard A=10353:io.github.av10086.smartalarm} record = null displayId = 0
+02-25 18:34:23.684  3513  5176 I OPM     : handleAppExit info: ApplicationExitInfo(timestamp=2026/2/25 18:34 pid=13123 realUid=10353 packageUid=10353 definingUid=10353 user=0 process=io.github.av10086.smartalarm reason=4 (APP CRASH(EXCEPTION)) subreason=0 (UNKNOWN) status=0 importance=100 pss=0.00 rss=0.00 description=crash state=empty trace=null
+02-25 18:34:23.684  3513  5046 D ActivityTaskManager: notifyTaskRemoved, task: Task{43d9ca6 #17261 type=standard A=10353:io.github.av10086.smartalarm} trace:com.android.server.wm.RecentTasks.notifyTaskRemoved:566 com.android.server.wm.RecentTasks.remove:1512 com.android.server.wm.Task.cleanUpResourcesForDestroy:798 com.android.server.wm.Task.onParentChanged:1214 com.android.server.wm.WindowContainer.setParent:757 
+02-25 18:34:23.684  3513  5046 D OplusAlwaysAliveManager: removing: 17261, ComponentInfo{io.github.av10086.smartalarm/io.github.av10086.smartalarm.MainActivity}
+02-25 18:34:23.685  2634 29203 D HoloAudio::SpecailizerPLService_Aidl: getMssEnable --- io.github.av10086.smartalarm[0]
+02-25 18:34:23.685  3513  6935 I OStatsManager_OplusBatteryStatsManager: updateStateTime: PkgName = io.github.av10086.smartalarm, uid = 10353, state to em, mForegroundCnt = 0, isFg = false
+02-25 18:34:23.687  2255 31705 D AudioFlingerExtImpl: AudioFlingerExtImpl oplusSetParameters: keyvalue onForegroundActivitiesChanged=io.github.av10086.smartalarm:foreground:0|10353:13123
+02-25 18:34:23.687  3513  5621 I OplusHansManager : onUidGone(), 10353 io.github.av10086.smartalarm exit SM
+02-25 18:34:23.688  3513  5621 I OplusHansManager : onUidGone(), 10353 io.github.av10086.smartalarm alarm removed
+02-25 18:34:23.688  3513  5160 I OplusHansManager : uid=10353, pkg=io.github.av10086.smartalarm R exit SM
+02-25 18:34:23.688  3513  5160 I OplusHansManager : uid=10353, pkg=io.github.av10086.smartalarm R exit(), R stay=0
+02-25 18:34:23.690  5171  5783 D OplusLinkBoostSceneManager: sceneStateUpdate: 5023,io.github.av10086.smartalarm,switch:[false, true, true, true]
+02-25 18:34:23.690  5171  5783 D OplusLinkBoostGame: onSceneUpdated: 5023,io.github.av10086.smartalarm,switchOn: false
+02-25 18:34:23.690  5171  5783 D OplusLinkBoostMeeting: onSceneUpdated: 5023,io.github.av10086.smartalarm,switchOn: true
+02-25 18:34:23.690  5171  5783 D OplusLinkBoostCommon: onSceneUpdated: 5023,io.github.av10086.smartalarm
+02-25 18:34:23.690  5171  5783 D OplusLinkBoostConcert: onSceneUpdated: 5023,io.github.av10086.smartalarm,switchOn: true,rus:true
+02-25 18:34:23.993  3513  3785 W ActivityTaskManager: Activity top resumed state loss timeout for ActivityRecord{2725131 u0 io.github.av10086.smartalarm/.MainActivity t-1 f}}

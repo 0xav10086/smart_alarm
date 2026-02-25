@@ -2,20 +2,25 @@ package io.github.av10086.smartalarm
 
 import io.github.libxposed.api.XposedInterface
 import io.github.libxposed.api.XposedModule
-import io.github.libxposed.api.annotations.XposedHooker
-import io.github.libxposed.api.annotations.XposedInit
-import io.github.libxposed.api.annotations.XposedModuleDetail
+import io.github.libxposed.api.XposedModuleInterface
 
-@XposedModuleDetail(name = "Smart Alarm", scope = ["nodomain.freeyourgadget.gadgetbridge"])
-class ModuleMain @XposedInit constructor(
+// 手动配置 LibXposed 时，注解可能无法通过编译，我们可以暂时注释掉它们
+// 或者确保 import 路径正确。由于我们已经手动创建了 libxposed_init，注解在运行时并非必需。
+class ModuleMain(
     iface: XposedInterface,
-    param: XposedModule.ModuleLoadedParam) : XposedModule(iface, param) {
-    override fun onPackageLoaded(param: XposedModule.PackageLoadedParam) {
+    param: XposedModuleInterface.ModuleLoadedParam
+) : XposedModule(iface, param) {
+
+    override fun onPackageLoaded(param: XposedModuleInterface.PackageLoadedParam) {
         super.onPackageLoaded(param)
+
+        // 只有进入 Gadgetbridge 进程时才执行
         if (param.packageName == "nodomain.freeyourgadget.gadgetbridge") {
-            log("Smart Alarm hooked into Gadgetbridge.")
-            // In a real scenario, you would place your hooks here.
-            // For now, we just log a message.
+            log("Smart Alarm: 成功注入 Gadgetbridge!")
+
+            // 示例：调用查询逻辑
+            // val data = GetDataInDB.queryLatestData()
+            // log("Hook 进程读取结果: $data")
         }
     }
 }
