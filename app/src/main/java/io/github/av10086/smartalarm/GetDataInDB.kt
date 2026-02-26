@@ -50,7 +50,7 @@ object GetDataInDB {
             SA.util.logsave("GetDataInDB: 备份数据库连接成功")
 
             // [1] 最新心率采样 (TIMESTAMP 是秒)
-            val cursorHr = db.rawQuery("SELECT TIMESTAMP, HEART_RATE FROM XIAOMI_ACTIVITY_SAMPLE WHERE HEART_RATE > 0 ORDER BY TIMESTAMP DESC LIMIT 1", null)
+            val cursorHr = db.rawQuery("SELECT TIMESTAMP, HEART_RATE FROM XIAOMI_ACTIVITY_SAMPLE WHERE HEART_RATE > 0 ORDER BY TIMESTAMP DESC LIMIT 5", null)
             if (cursorHr.moveToFirst()) {
                 val ts = cursorHr.getLong(0) * 1000
                 val hr = cursorHr.getInt(1)
@@ -61,7 +61,7 @@ object GetDataInDB {
             cursorHr.close()
 
             // [2] 睡眠结论提取 (TIMESTAMP 是毫秒)
-            val cursorSleep = db.rawQuery("SELECT TIMESTAMP, WAKEUP_TIME FROM XIAOMI_SLEEP_TIME_SAMPLE ORDER BY TIMESTAMP DESC LIMIT 1", null)
+            val cursorSleep = db.rawQuery("SELECT TIMESTAMP, WAKEUP_TIME FROM XIAOMI_SLEEP_TIME_SAMPLE ORDER BY TIMESTAMP DESC LIMIT 5", null)
             if (cursorSleep.moveToFirst()) {
                 val startTs = cursorSleep.getLong(0)
                 val endTs = cursorSleep.getLong(1)
@@ -72,7 +72,7 @@ object GetDataInDB {
             cursorSleep.close()
 
             // [3] 睡眠阶段分析 (TIMESTAMP 是毫秒)
-            val cursorStage = db.rawQuery("SELECT TIMESTAMP, STAGE FROM XIAOMI_SLEEP_STAGE_SAMPLE ORDER BY TIMESTAMP DESC LIMIT 1", null)
+            val cursorStage = db.rawQuery("SELECT TIMESTAMP, STAGE FROM XIAOMI_SLEEP_STAGE_SAMPLE ORDER BY TIMESTAMP DESC LIMIT 5", null)
             if (cursorStage.moveToFirst()) {
                 val ts = cursorStage.getLong(0)
                 val stage = cursorStage.getInt(1)

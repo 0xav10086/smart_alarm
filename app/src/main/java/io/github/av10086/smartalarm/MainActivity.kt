@@ -9,7 +9,8 @@ import com.topjohnwu.superuser.Shell
 import com.google.android.material.textfield.TextInputEditText
 
 class MainActivity : AppCompatActivity() {
-
+    // 在较新的 Android 系统中，为了防止应用互相窃取数据，系统采用了极强的沙盒机制（App Data Isolation）。
+    // 当通过 Shell.getShell {} 获取 Root 权限时，默认情况下，这个 Root Shell 继承的是 SmartAlarm 这个 App 的挂载环境。在这个被隔离的环境里，其他 App（如 Gadgetbridge）的 /data/data/ 目录被系统直接“隐藏”或“卸载”了。因此，尽管是 Root，但在这个平行世界里，那个文件确实“不存在”，导致 [ -f ] 和 cp 命令静默失败（Code 1）。
     // init 块，配置 libsu 使用全局挂载空间
     init {
         Shell.setDefaultBuilder(
@@ -36,6 +37,7 @@ class MainActivity : AppCompatActivity() {
         etSleepDuration = findViewById(R.id.et_sleep_duration)
         val btnSaveConfig = findViewById<Button>(R.id.btn_save_config)
         val btnReadDb = findViewById<Button>(R.id.btn_read_db)
+        val btnTestAlarm = findViewById<Button>(R.id.btn_test_alarm)
 
         SA.util.logsave("MainActivity: App 启动")
 
@@ -60,6 +62,11 @@ class MainActivity : AppCompatActivity() {
         btnSaveConfig.setOnClickListener {
             SA.util.logsave("MainActivity: 保存配置: ${etWakeupTime.text}")
             Toast.makeText(this, "配置已保存", Toast.LENGTH_SHORT).show()
+        }
+
+        btnTestAlarm.setOnClickListener {
+            Toast.makeText(this, "正在设置闹钟...", Toast.LENGTH_SHORT).show()
+            SetAlarm.TestAlarmFunction(this)
         }
 
         btnReadDb.setOnClickListener {
@@ -95,7 +102,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
     private fun testReadDatabase() {
         SA.util.logsave("MainActivity: 手动触发数据库读取测试")
         tvDbContent.text = "正在尝试读取..."
