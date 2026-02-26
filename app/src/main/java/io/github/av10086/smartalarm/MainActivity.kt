@@ -6,10 +6,18 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.topjohnwu.superuser.Shell
-import android.database.sqlite.SQLiteDatabase
 import com.google.android.material.textfield.TextInputEditText
 
 class MainActivity : AppCompatActivity() {
+
+    // init 块，配置 libsu 使用全局挂载空间
+    init {
+        Shell.setDefaultBuilder(
+            Shell.Builder.create()
+                .setFlags(Shell.FLAG_MOUNT_MASTER)
+                .setTimeout(10)
+        )
+    }
 
     private lateinit var tvRootStatus: TextView
     private lateinit var tvGbStatus: TextView
@@ -18,10 +26,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etSleepDuration: TextInputEditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
-    try {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        // 初始化视图
+
         tvRootStatus = findViewById(R.id.tv_root_status)
         tvGbStatus = findViewById(R.id.tv_gb_status)
         tvDbContent = findViewById(R.id.tv_db_content)
@@ -30,87 +37,71 @@ class MainActivity : AppCompatActivity() {
         val btnSaveConfig = findViewById<Button>(R.id.btn_save_config)
         val btnReadDb = findViewById<Button>(R.id.btn_read_db)
 
-        // 执行自检
-        runSelfCheck()
+        SA.util.logsave("MainActivity: App 启动")
+
+        // 异步获取 Shell 并执行自检
+        Shell.getShell { shell ->
+            if (shell.isRoot) {
+                runOnUiThread {
+                    tvRootStatus.text = "Root 权限: 已获得"
+                    tvRootStatus.setTextColor(getColor(android.R.color.holo_green_dark))
+                    SA.util.logsave("MainActivity: Root 已授权")
+                    checkGadgetbridge()
+                }
+            } else {
+                runOnUiThread {
+                    tvRootStatus.text = "Root 权限: 未获得"
+                    tvRootStatus.setTextColor(getColor(android.R.color.holo_red_dark))
+                    SA.util.logsave("MainActivity: Root 未授权")
+                }
+            }
+        }
 
         btnSaveConfig.setOnClickListener {
-            saveConfig()
+            SA.util.logsave("MainActivity: 保存配置: ${etWakeupTime.text}")
+            Toast.makeText(this, "配置已保存", Toast.LENGTH_SHORT).show()
         }
 
         btnReadDb.setOnClickListener {
-            testReadDatabase()
-        }
-    } catch (t: Throwable) {
-        android.util.Log.e("SmartAlarm", "Crash in onCreate", t)
-        throw t
-    }
-}
+            SA.util.logsave("MainActivity: 手动触发数据库读取测试")
+            tvDbContent.text = "正在尝试读取..."
 
-    private fun runSelfCheck() {
-        // 1. 检测 Root 权限 (异步)
-        Shell.getShell { shell ->
-            if (shell.isRoot) {
-                tvRootStatus.text = "Root 权限: 已获得"
-                tvRootStatus.setTextColor(getColor(android.R.color.holo_green_dark))
-                
-                // 2. 只有在有 Root 时才检测 Gadgetbridge
-                checkGadgetbridge()
-            } else {
-                tvRootStatus.text = "Root 权限: 未获得 (请在管理器中授权)"
-                tvRootStatus.setTextColor(getColor(android.R.color.holo_red_dark))
-                tvGbStatus.text = "Gadgetbridge: 无法检测 (需要 Root)"
-            }
+            // 使用新线程或协程避免阻塞主线程
+            Thread {
+                val result = GetDataInDB.queryLatestData(this)
+                runOnUiThread {
+                    tvDbContent.text = result
+                }
+            }.start()
         }
     }
 
     private fun checkGadgetbridge() {
-        val dbPath = "/data/data/nodomain.freeyourgadget.gadgetbridge/databases/gadgetbridge"
-        // 使用 Shell 命令检查文件是否存在，避开权限问题
-        val result = Shell.cmd("ls $dbPath").exec()
-        if (result.isSuccess) {
-            tvGbStatus.text = "Gadgetbridge: 已安装并找到数据库"
-            tvGbStatus.setTextColor(getColor(android.R.color.holo_green_dark))
-        } else {
-            tvGbStatus.text = "Gadgetbridge: 未找到数据库"
-            tvGbStatus.setTextColor(getColor(android.R.color.holo_red_dark))
-        }
-    }
-
-    private fun saveConfig() {
-        val wakeup = etWakeupTime.text.toString()
-        val duration = etSleepDuration.text.toString()
+        // 改用 [ -f ] 这种更原生的 Shell 方式检测文件是否存在
+        val dbPath = Config.DB_PATH
+        SA.util.logsave("MainActivity: 正在检测数据库: $dbPath")
         
-        if (wakeup.isEmpty() || duration.isEmpty()) {
-            Toast.makeText(this, "请填写完整配置", Toast.LENGTH_SHORT).show()
-            return
+        Shell.cmd("[ -f \"$dbPath\" ]").submit { result ->
+            runOnUiThread {
+                if (result.isSuccess) {
+                    tvGbStatus.text = "Gadgetbridge: 已找到数据库"
+                    tvGbStatus.setTextColor(getColor(android.R.color.holo_green_dark))
+                    SA.util.logsave("MainActivity: 数据库检测通过")
+                } else {
+                    tvGbStatus.text = "Gadgetbridge: 未找到数据库"
+                    tvGbStatus.setTextColor(getColor(android.R.color.holo_red_dark))
+                    SA.util.logsave("MainActivity: 数据库文件不存在或权限不足")
+                }
+            }
         }
-
-        // 这里可以将配置写入系统文件或 SharedPreferences
-        // 模拟保存
-        Toast.makeText(this, "配置已保存至缓存 (功能待完善)", Toast.LENGTH_SHORT).show()
     }
 
     private fun testReadDatabase() {
-        val dbPath = "/data/data/nodomain.freeyourgadget.gadgetbridge/databases/gadgetbridge"
-        
+        SA.util.logsave("MainActivity: 手动触发数据库读取测试")
         tvDbContent.text = "正在尝试读取..."
-
-        try {
-            // 使用 libsu 的 SQLiteDatabase 配合 Root 权限
-            val db = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READONLY)
-            val cursor = db.rawQuery("SELECT * FROM MI_BAND_ACTIVITY_SAMPLE ORDER BY TIMESTAMP DESC LIMIT 1", null)
-
-            if (cursor.moveToFirst()) {
-                val timestamp = cursor.getLong(cursor.getColumnIndexOrThrow("TIMESTAMP"))
-                val rawIntensity = cursor.getInt(cursor.getColumnIndexOrThrow("RAW_INTENSITY"))
-                tvDbContent.text = "读取成功!\n时间戳: $timestamp\n强度: $rawIntensity"
-            } else {
-                tvDbContent.text = "数据库连接成功，但表中无数据"
-            }
-            cursor.close()
-            db.close()
-        } catch (e: Exception) {
-            tvDbContent.text = "读取失败: ${e.message}"
-        }
+        
+        // 传入上下文以便获取缓存目录
+        val result = GetDataInDB.queryLatestData(this)
+        tvDbContent.text = result
     }
 }
